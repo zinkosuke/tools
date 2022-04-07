@@ -20,6 +20,7 @@ import Link from 'next/link';
 import React from 'react';
 
 type Props = {
+  title?: string;
   children: React.ReactNode;
 };
 
@@ -29,8 +30,11 @@ type Content = {
 };
 
 const workoutContents: Content[] = [
-  { href: '/workout/5-3-1-program', text: '5/3/1 Program' },
+  { href: '/workout/5-3-1-generator', text: '5/3/1 generator' },
+  { href: '/workout/5-5-generator', text: '5x5 generator' },
 ];
+
+const title = 'My Tools';
 
 export const DefaultLayout = (props: Props): JSX.Element => {
   const [open, setOpen] = React.useState(false);
@@ -78,7 +82,7 @@ export const DefaultLayout = (props: Props): JSX.Element => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" color="inherit" component="div">
-            MyTools
+            {props.title ?? title}
           </Typography>
         </Toolbar>
       </AppBar>

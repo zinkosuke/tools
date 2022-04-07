@@ -1,3 +1,5 @@
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -7,6 +9,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
+import Head from 'next/head';
 import React from 'react';
 import { InputText } from '~/components/InputText';
 import { DefaultLayout } from '~/components/templates/DefaultLayout';
@@ -15,91 +18,58 @@ type Props = {};
 
 type State = {
   rm: number;
-  tm: number;
 };
 
 type OnChangeFunction = (event: React.ChangeEvent<HTMLInputElement>) => void;
 
-const xRound = (x: number): number => Math.round(x * 10) / 10;
+const xRound = (x: number, d: number = 1): number => {
+  const dd = 10 ** d;
+  return Math.round(x * dd) / dd;
+};
 
 const onPositiveNumberChange = (f: (x: number) => void): OnChangeFunction => {
   return (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const value: number = +event.target.value;
-    if (0 <= value) f(value);
+    const n: number = +event.target.value;
+    if (0 <= n) f(n);
   };
 };
 
 const initState = (): State => ({
   rm: 0,
-  tm: 0,
 });
+
+const title = '5x5 generator';
 
 const Page = (props: Props): JSX.Element => {
   const [state, setState] = React.useState<State>(initState());
 
-  const onRmChange = onPositiveNumberChange((x: number): void =>
-    setState({
-      rm: x,
-      tm: xRound(x * 0.9),
-    })
-  );
-  const onTmChange = onPositiveNumberChange((x: number): void =>
-    setState({
-      rm: xRound(x / 0.9),
-      tm: x,
-    })
-  );
-  const repScheme = (x: number): string =>
-    state.tm === 0 ? `${x * 100}%` : `${xRound(state.tm * x)}kg`;
+  const setNewRm = (x: number): void => setState({ rm: x });
 
-  const tHead = ['Week', 'Set-1', 'Set-2', 'Set-3'];
-  const tRows = [
-    [
-      '1',
-      `${repScheme(0.65)} x 5`,
-      `${repScheme(0.75)} x 5`,
-      `${repScheme(0.85)} x 5+`,
-    ],
-    [
-      '2',
-      `${repScheme(0.7)} x 3`,
-      `${repScheme(0.8)} x 3`,
-      `${repScheme(0.9)} x 3+`,
-    ],
-    [
-      '3',
-      `${repScheme(0.75)} x 5`,
-      `${repScheme(0.85)} x 3`,
-      `${repScheme(0.95)} x 1+`,
-    ],
-    [
-      '4',
-      `${repScheme(0.4)} x 5`,
-      `${repScheme(0.5)} x 5`,
-      `${repScheme(0.6)} x 5+`,
-    ],
+  const onRmChange = onPositiveNumberChange(setNewRm);
+
+  const repScheme = (x: number): string =>
+    state.rm === 0 ? `${xRound(x * 100)}%` : `${xRound(state.rm * x)}kg`;
+
+  const tHead = ['Day', 'Set-1', 'Set-2', 'Set-3', 'Set-4', 'Set-5'];
+  const tRowsFirstSet = [
+    0.55, 0.6, 0.55, 0.6, 0.65, 0.6, 0.65, 0.7, 0.65, 0.7, 0.75, 0.7, 0.75, 0.8,
+    0.75, 0.8,
   ];
 
   return (
-    <DefaultLayout>
+    <DefaultLayout title={title}>
+      <Head>
+        <title>{title}</title>
+      </Head>
       <Container>
         <TextField
           label="1 Rep Max"
           margin="normal"
           onChange={onRmChange}
           placeholder="kg"
-          sx={{ minWidth: 100, maxWidth: 200, marginRight: '1rem' }}
+          sx={{ width: '7rem', marginRight: '1rem' }}
           type="number"
           value={state.rm}
-        />
-        <TextField
-          label="Training Max"
-          margin="normal"
-          onChange={onTmChange}
-          placeholder="kg"
-          sx={{ minWidth: 100, maxWidth: 200 }}
-          type="number"
-          value={state.tm}
         />
         <TableContainer component={Paper}>
           <Table sx={{ margin: 'auto', maxWidth: 760 }}>
@@ -113,11 +83,14 @@ const Page = (props: Props): JSX.Element => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tRows.map((tRow, i) => (
+              {tRowsFirstSet.map((x, i) => (
                 <TableRow key={i}>
-                  {tRow.map((x, j) => (
+                  <TableCell sx={{ textAlign: 'center' }} key={-1}>
+                    {i + 1}
+                  </TableCell>
+                  {[0, 1, 2, 3, 4].map((y, j) => (
                     <TableCell sx={{ textAlign: 'center' }} key={j}>
-                      {x}
+                      {repScheme(xRound(x + j * 0.05, 2))} x 5
                     </TableCell>
                   ))}
                 </TableRow>
@@ -125,6 +98,24 @@ const Page = (props: Props): JSX.Element => {
             </TableBody>
           </Table>
         </TableContainer>
+        <div style={{ padding: '1rem', textAlign: 'right' }}>
+          <Button
+            variant="contained"
+            endIcon={<DoubleArrowIcon />}
+            sx={{ width: '7rem', marginRight: '1rem' }}
+            onClick={() => setNewRm(state.rm + 2.5)}
+          >
+            +2.5kg
+          </Button>
+          <Button
+            variant="contained"
+            endIcon={<DoubleArrowIcon />}
+            sx={{ width: '7rem' }}
+            onClick={() => setNewRm(state.rm + 5)}
+          >
+            +5kg
+          </Button>
+        </div>
       </Container>
     </DefaultLayout>
   );
